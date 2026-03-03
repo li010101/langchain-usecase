@@ -35,6 +35,19 @@
   - 人机协作升级
   - 会话历史管理
 - **推荐理由**: 完整生产级实现，含部署和架构设计
+#### 替代项目
+  1. amite/ai-customer-service-agent (推荐)
+   - https://github.com/amite/ai-customer-service-agent
+   - 技术栈：LangChain + Ollama + Streamlit + Qdrant
+   - 功能：订单查询、产品搜索、语义搜索、退款处理
+  2. techwithtim/langflow-customer-support-agent (218 stars)
+   - https://github.com/techwithtim/langflow-customer-support-agent
+   - 技术栈：LangFlow + RAG + Streamlit
+   - 使用 LangFlow 可视化流程
+  3. rajesh9943/Customer-Support-Agentic-AI
+   - https://github.com/rajesh9943/Customer-Support-Agentic-Ai
+   - 技术栈：LangGraph + LangChain + Groq
+   - 包含情绪分析和智能升级
 
 ### 案例2：Skello Assistant（企业级）
 - **来源**: [Medium - Skello Engineering](https://building.theatlantic.com/unboxing-the-ai-scaling-our-skello-assistant-with-langchain-mcp-9c776019c84a)

@@ -1,0 +1,74 @@
+1. 技术栈概览
+| 层级 | 技术 |
+|------|------|
+| LLM | Claude 3 Opus (Anthropic) / Bedrock |
+| 框架 | LangChain + LangGraph |
+| 数据源 | OpenBB, yfinance, QuantStats, FinViz, Tiingo, FMP, Intrinio |
+| UI | Streamlit |
+| API | FastAPI + LangServe |
+| 部署 | Docker, AWS Copilot |
+2. 核心架构 - 多 Agent 系统
+项目使用 LangGraph 构建了多 Agent 协作架构：
+                    ┌─────────────────┐
+                    │ Primary Agent   │  ← 主入口，处理用户请求
+                    │ (路由器)         │
+                    └────────┬────────┘
+                             │
+         ┌─────────┬────────┼────────┼────────┬─────────┐
+         ▼         ▼        ▼        ▼        ▼         ▼
+    ┌────────┐┌────────┐┌────────┐┌────────┐┌────────┐┌────────┐
+    │ Stock  ││ Stock  ││ Chart  ││ Risk   ││ Gainers││ Tavily │
+    │ Scan   ││Analysis││Analysis││ Mgmt   ││ Losers ││ Search │
+    └────────┘└────────┘└────────┘└────────┘└────────┘└────────┘
+5 个专业化 Agent：
+    - full_scan_agent - 股票池扫描
+    - full_analysis_agent - 全面分析（基本面、技术面、情绪面）
+    - chart_analysis_agent - 图表分析
+    - risk_management_agent - 风险管理
+    - gainers_losers_agent - 涨跌幅榜
+3. 项目结构
+financial-chat/
+├── app/
+│   ├── chains/          # LangGraph Agent 定义
+│   │   ├── agent.py     # Agent 图构建 + 状态定义
+│   │   └── templates.py  # Prompt 模板
+│   ├── features/         # 功能模块
+│   │   ├── chart.py      # 图表生成
+│   │   ├── screener.py   # 股票筛选
+│   │   └── technical.py  # 技术指标
+│   ├── tools/            # 工具函数（LangChain @tool）
+│   │   ├── stock_stats.py      # 行情数据
+│   │   ├── stock_sentiment.py  # 情绪分析
+│   │   ├── stock_charts.py     # 图表分析
+│   │   ├── risk_management.py  # 风险管理
+│   │   └── stock_relative_strength.py
+│   ├── server.py         # FastAPI + LangServe
+│   └── ui.py             # Streamlit UI
+├── imf/                  # IMF 数据扩展模块
+└── pyproject.toml        # 依赖管理
+4. 关键设计亮点
+1. Agent 状态管理: 使用 TypedDict + add_messages 实现对话状态持久化
+2. 工具路由: tools_condition 根据 Tool Call 自动路由到对应 Agent
+3. 数据封装: 所有工具返回 <observation> 标签包裹的格式化数据
+4. 双入口: 支持 Streamlit UI 和 FastAPI 两种交互方式
+5. 环境配置: 通过 .env 管理多个 API Key
+5. 数据流
+用户输入 → Primary Agent (意图识别) → 专业化 Agent → 工具节点
+                                                    ↓
+                                         OpenBB/yfinance/QuantStats
+                                                    ↓
+                                         工具节点 → 专业化 Agent → Primary Agent → 用户
+
+
+
+启动服务
+cd financial-chat/financial-chat
+
+# 激活虚拟环境
+source .venv/bin/activate
+
+# 启动 Streamlit
+streamlit run app/ui.py
+
+# fastapi启动
+uvicorn app.server:app --host 0.0.0.0 --port 8080
